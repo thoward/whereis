@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<!--[if lt IE 7]>      <html class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
+<!--[if IE 7]>         <html class="no-js lt-ie9 lt-ie8"> <![endif]-->
+<!--[if IE 8]>         <html class="no-js lt-ie9"> <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js"> <!--<![endif]-->
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+        <title>Where is Troy Howard?</title>
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+
+        <link rel="stylesheet" href="css/normalize.min.css">
+        <link rel="stylesheet" href="css/main.css">
+        <link rel="stylesheet" href="css/pikaday.css">
+        <script src="js/vendor/pikaday.js"></script>
+
+        <script>
+          var full_name = "Troy Howard";
+          var default_location = "Portland, OR, USA";
+          var default_until = "something comes up";
+          var current_date = new Date().toDateString();
+          var schedule = [
+            { "in": "San Francisco, CA, USA", "from": "06/11/2014", "to": "06/16/2014"},
+            { "in": "Hangzhou, China", "from": "06/17/2014", "to": "06/25/2014"},
+            { "in": "San Francisco, CA, USA", "from": "06/26/2014", "to": "07/03/2014"},
+          ];
+        </script>
+
+        <script src="js/vendor/handlebars-v1.3.0.js"></script>
+        <script id="schedule-template" type="text/x-handlebars-template">
+          <ul>
+            {{#each schedule}}
+            <li><strong><a href="https://www.google.com/maps?q={{in}}" />{{in}}</a></strong> from {{from}} to {{to}}</li>
+            {{/each}}
+          </ul>
+        </script>
+        <script id="current-location-template" type="text/x-handlebars-template">
+          <center>
+            <h1>{{full_name}} is in</h1>
+            <h1><a href="https://www.google.com/maps?q={{location}}" />{{location}}</a></h1>
+            <h1>until {{until}}</h1>
+          </center>
+          <a href="https://www.google.com/maps?q={{location}}" />
+          <img style="width: 100%" src="http://maps.googleapis.com/maps/api/staticmap?center={{location}}&zoom=14&size=650x650&sensor=false"/></a>
+        </script>
+
+        <!--[if lt IE 9]>
+            <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+            <script>window.html5 || document.write('<script src="js/vendor/html5shiv.js"><\/script>')</script>
+        <![endif]-->
+    </head>
+    <body>
+        <!--[if lt IE 7]>
+            <p class="browsehappy">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</p>
+        <![endif]-->
+
+        <div style="width: 50%; margin: 0 auto;">
+          <div id="current_location">
+          </div>
+          <h2>Schedule</h2>
+          <div id="schedule"></div>
+          <h2>Pick a Date</h2>
+          <h3 id="future_location">On {{current_date}} Troy will be in {{current_location}}</h3>
+          <div style="display: inline-block">
+            <b id="datepicker"></b>
+          </div>
+        </div>
+        <script>
+        function location_for_date(date, schedule) {
+          var target_date = Date.parse(date);
+
+          var next_travel_date = "1/1/2114";
+
+          for (var i in schedule) {
+            if (schedule.hasOwnProperty(i)) {
+              var trip = schedule[i];
+              var from = Date.parse(trip.from);
+              var to = Date.parse(trip.to);
+              if (target_date >= from && target_date <= to) {
+                return {location: trip['in'], until: trip.to}
+              }
+              if (from > target_date && from < Date.parse(next_travel_date)) {
+                next_travel_date = trip.from
+              }
+            }
+          }
+          if (next_travel_date == "1/1/2114") {
+            next_travel_date = default_until
+          }
+          return {location: default_location, until: next_travel_date}
+        };
+
+        function upcoming_schedule(current_date, schedule) {
+          return schedule.filter(function(trip){
+            return Date.parse(trip.from) > Date.parse(current_date);
+          });
+        };
+        function format_date(date){
+          var iso_string = date.toISOString();
+          // dd/mm/yyyy
+          return iso_string.slice(5, 7) + "/" + iso_string.slice(8, 10) + "/" + iso_string.slice(0, 4)
+        }
+
+        function update_picker(date) {
+          console.log(date);
+          document.getElementById('future_location').innerHTML = "On " + format_date(date) + " " + full_name + " will be in " + location_for_date(date.toDateString(), schedule)['location'];
+        }
+        </script>
+
+        <script>
+          document.addEventListener("DOMContentLoaded", function() {
+
+            var current_location_template_source = document.querySelector("#current-location-template").innerHTML;
+
+            current_location_template = Handlebars.compile(current_location_template_source);
+           current_location = location_for_date(current_date, schedule)
+            // current_location = location_for_date("07/17/2014", schedule)
+
+            current_location_html = current_location_template({full_name:full_name, location:current_location['location'], until: current_location['until']});
+            document.querySelector("#current_location").innerHTML = current_location_html;
+
+            var schedule_template_source = document.querySelector("#schedule-template").innerHTML;
+
+            schedule_template = Handlebars.compile(schedule_template_source);
+            schedule_html = schedule_template({schedule:upcoming_schedule(current_date, schedule)});
+            document.querySelector("#schedule").innerHTML = schedule_html;
+          });
+
+          document.addEventListener("DOMContentLoaded", function() {
+
+            var field = document.getElementById('datepicker');
+            var picker = new Pikaday({
+                onSelect: update_picker,
+            });
+            field.parentNode.insertBefore(picker.el, field.nextSibling);
+            picker.setDate(current_date);
+          });
+
+          </script>
+        <!-- Google Analytics: change UA-XXXXX-X to be your site's ID. -->
+        <script>
+            (function(b,o,i,l,e,r){b.GoogleAnalyticsObject=l;b[l]||(b[l]=
+            function(){(b[l].q=b[l].q||[]).push(arguments)});b[l].l=+new Date;
+            e=o.createElement(i);r=o.getElementsByTagName(i)[0];
+            e.src='//www.google-analytics.com/analytics.js';
+            r.parentNode.insertBefore(e,r)}(window,document,'script','ga'));
+            ga('create','UA-XXXXX-X');ga('send','pageview');
+        </script>
+    </body>
+</html>
