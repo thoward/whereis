@@ -58,7 +58,7 @@
         <div style="width: 50%; margin: 0 auto;">
           <div id="current_location">
           </div>
-          <h2>Schedule</h2>
+          <h2>Upcoming Trips</h2>
           <div id="schedule"></div>
           <h2>Pick a Date</h2>
           <h3 id="future_location">On {{current_date}} Troy will be in {{current_location}}</h3>
@@ -103,8 +103,9 @@
         }
 
         function update_picker(date) {
-          console.log(date);
-          document.getElementById('future_location').innerHTML = "On " + format_date(date) + " " + full_name + " will be in " + location_for_date(date.toDateString(), schedule)['location'];
+          var location = location_for_date(date.toDateString(), schedule)['location'];
+
+          document.getElementById('future_location').innerHTML = "On " + format_date(date) + " " + full_name + " will be in <a href='https://www.google.com/maps?q=" + location + "'>" + location + "</a>" ;
         }
         </script>
 
