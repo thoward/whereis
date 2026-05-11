@@ -118,23 +118,48 @@
         </script>
 
         <script>
-          document.addEventListener("DOMContentLoaded", function() {
+            document.addEventListener("DOMContentLoaded", function() {
 
-            var current_location_template_source = document.querySelector("#current-location-template").innerHTML;
+                var current_location_template_source = document.querySelector("#current-location-template").innerHTML;
 
-            current_location_template = Handlebars.compile(current_location_template_source);
-           current_location = location_for_date(current_date, schedule)
-            // current_location = location_for_date("07/17/2014", schedule)
+                console.log("compiling: current-location-template");
+                current_location_template = Handlebars.compile(current_location_template_source);
 
-            current_location_html = current_location_template({full_name:full_name, location:current_location['location'], until: current_location['until']});
-            document.querySelector("#current_location").innerHTML = current_location_html;
-
-            var schedule_template_source = document.querySelector("#schedule-template").innerHTML;
-
-            schedule_template = Handlebars.compile(schedule_template_source);
-            schedule_html = schedule_template({schedule:upcoming_schedule(current_date, schedule)});
-            document.querySelector("#schedule").innerHTML = schedule_html;
-          });
+                console.log("determining: current location");
+                current_location = location_for_date(current_date, schedule);
+                console.log("result:");
+                console.log(current_location);
+                // current_location = location_for_date("07/17/2014", schedule)
+    
+                var location_info = {
+                    full_name: full_name, 
+                    location: current_location['location'], 
+                    until: current_location['until']
+                };
+                console.log("using: current-location-template");
+                console.log(location_info);
+                current_location_html = current_location_template(location_info);
+                console.log("result: ");
+                console.log(current_location_html);
+                console.log("inserting: current-location-template output");
+                document.querySelector("#current_location").innerHTML = current_location_html;
+    
+                var schedule_template_source = document.querySelector("#schedule-template").innerHTML;
+    
+                console.log("compiling: schedule-template");
+                schedule_template = Handlebars.compile(schedule_template_source);
+                console.log("getting upcoming schedule for date:");
+                console.log(current_date);
+                console.log(schedule);
+                var upcoming_schedule_info = upcoming_schedule(current_date, schedule);
+                console.log("result:");
+                console.log(upcoming_schedule_info);
+                console.log("using: schedule_template");
+                schedule_html = schedule_template({schedule:upcoming_schedule_info});
+                console.log("result:");
+                console.log(schedule_html);
+                document.querySelector("#schedule").innerHTML = schedule_html;
+            });
 
           document.addEventListener("DOMContentLoaded", function() {
 
