@@ -50,7 +50,7 @@
             <h1>until {{until}}</h1>
           </center>
           <a href="https://www.google.com/maps?q={{location}}" />
-          <img style="width: 100%" src="http://maps.googleapis.com/maps/api/staticmap?center={{location}}&zoom=14&size=650x650&sensor=false"/></a>
+          <img style="width: 100%" src="{{map_image}}"/></a>
         </script>
 
         <!--[if lt IE 9]>
@@ -75,6 +75,16 @@
           </div>
         </div>
         <script>
+        function map_image_for_location(location) {
+            var location_geo = {
+                "Portland, OR, USA": { lat: "45.51313979575215", long: "-122.6625304771494" },
+                "St. Louis, MO, USA": { lat: "38.616595136034306", long: "-90.18636665598643" },
+                "Washington, DC, USA": { lat: "38.89103223817514", long: "-77.03790340152682" },
+            };
+            
+            return "https://staticimage.undpgeohub.org/api/style/static/" + (location_geo[location] ?? location_geo[default_location]).long + "," + (location_geo[location] ?? location_geo[default_location]).lat + ",10.0,0,0/300x200.webp?url=https%3A%2F%2Fdev.undpgeohub.org%2Fapi%2Fmapstyle%2Fstyle.json&ratio=1"
+        };
+        
         function location_for_date(date, schedule) {
           var target_date = Date.parse(date);
 
@@ -133,8 +143,9 @@
     
                 var location_info = {
                     full_name: full_name, 
-                    location: current_location['location'], 
-                    until: current_location['until']
+                    location: current_location['location'],
+                    until: current_location['until'],
+                    map_image: map_image_for_location(current_location['location']),
                 };
                 console.log("using: current-location-template");
                 console.log(location_info);
